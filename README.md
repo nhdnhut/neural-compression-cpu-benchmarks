@@ -1,6 +1,12 @@
 # An Empirical Study of Accuracy–Resource Trade-offs in Neural Network Compression under CPU-Only Constraints
 
 > A rigorous empirical benchmark of compression methods on small neural networks, measured on CPU-only hardware.
+> PyTorch | Pruning | INT8 Dynamic Quantization | SVD Decomposition | CPU Benchmark Harness
+
+[![Python](https://img.shields.io/badge/Python-3.11+-brightgreen?style=flat-square&logo=python&logoColor=white)](https://www.python.org/)
+[![PyTorch](https://img.shields.io/badge/PyTorch-2.0+-EE4C2C?style=flat-square&logo=pytorch&logoColor=white)](https://pytorch.org/)
+[![Tests](https://img.shields.io/badge/Tests-32%20Passed-brightgreen?style=flat-square)](tests/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=flat-square)](LICENSE)
 
 ---
 
