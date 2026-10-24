@@ -1,0 +1,44 @@
+% ============================================================
+%  sections/07_conclusion.tex
+% ============================================================
+\section{Conclusion}
+\label{sec:conclusion}
+
+We presented a controlled empirical benchmark of three neural network
+compression methods—magnitude pruning, dynamic INT8 quantization, and
+SVD low-rank factorization—on a compact CNN trained on Fashion-MNIST.
+Our contributions are threefold.
+
+\textbf{Theoretically}, we proved three results:
+sparsity preservation under masked gradient descent (Theorem~\ref{thm:sparsity}),
+the Eckart-Young optimality of truncated SVD (Theorem~\ref{thm:eckart_young}),
+and INT8 quantization error and network perturbation bounds (Theorem~\ref{thm:quant_error}).
+These results give a principled foundation for understanding why each
+method behaves as it does.
+
+\textbf{Empirically}, we uncovered a \textbf{non-monotonic latency profile}
+for unstructured pruning that contradicts the simplified ``no speedup'' narrative:
+moderate sparsity (25--75\%) \emph{increases} wall-clock latency by 13--41\%
+due to masking overhead and cache-access degradation, while extreme sparsity
+(90\%) produces an unexpected 40\% latency \emph{reduction} explained by
+L2 cache residency effects. Neither trend is predictable from theoretical
+FLOPs analysis alone—a finding with direct implications for how compression
+benchmarks should be reported.
+
+\textbf{Practically}, our Pareto analysis identifies dynamic INT8
+quantization as the dominant compression strategy on commodity CPU
+hardware: it achieves $\sim$4$\times$ model size reduction with
+$<$0.1\% accuracy degradation and is the only method that reduces
+\emph{both} model size and inference latency simultaneously.
+
+\paragraph{Future Work.}
+Promising extensions include:
+structured channel pruning for real latency benefits;
+quantization-aware training (QAT) for improved accuracy under
+aggressive quantization;
+architectural low-rank factorization;
+and combined compression pipelines.
+
+\paragraph{Code Availability.}
+All code, experiment configurations, and benchmark data are available at:
+\url{https://github.com/your-username/AI_Optimise}

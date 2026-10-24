@@ -1,0 +1,13 @@
+{
+  "exp_id": "E00",
+  "method": "baseline",
+  "n_seeds": 1,
+  "test_accuracy_mean": 0.9214,
+  "test_accuracy_std": 0.0,
+  "test_macro_f1_mean": 0.9209908985206926,
+  "test_macro_f1_std": 0.0,
+  "latency_mean_ms_mean": 0.5379929994523991,
+  "params_trainable": 206922,
+  "MACs_M": 1.218048,
+  "model_size_param_mb": 0.7893447875976562
+}

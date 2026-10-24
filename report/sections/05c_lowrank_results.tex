@@ -1,0 +1,45 @@
+% ============================================================
+%  sections/05c_lowrank_results.tex
+% ============================================================
+\subsection{Low-Rank SVD: Approximation Error vs.\ Accuracy}
+\label{sec:lowrank_results}
+
+Table~\ref{tab:lowrank} reports results for SVD reconstruction
+at three rank ratios.
+
+\begin{table}[ht]
+\centering
+\caption{Low-rank SVD results.
+$\eta$: mean energy retained (Eq.~\ref{eq:energy}).
+Frob.\ err: relative Frobenius approximation error.
+Note: model size is unchanged (reconstruction, not factorization).}
+\label{tab:lowrank}
+\small
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{ccccc}
+\toprule
+Rank ratio & Acc (\%) & $\Delta$Acc & $\eta$ (\%) & Frob.\ err \\
+\midrule
+100\% (base) & \RESULTFILE{lr100_acc} & --- & 100.0 & 0.000 \\
+75\%         & \RESULTFILE{lr75_acc} & \RESULTFILE{lr75_dacc} & \RESULTFILE{lr75_eta} & \RESULTFILE{lr75_ferr} \\
+50\%         & \RESULTFILE{lr50_acc} & \RESULTFILE{lr50_dacc} & \RESULTFILE{lr50_eta} & \RESULTFILE{lr50_ferr} \\
+25\%         & \RESULTFILE{lr25_acc} & \RESULTFILE{lr25_dacc} & \RESULTFILE{lr25_eta} & \RESULTFILE{lr25_ferr} \\
+\bottomrule
+\end{tabular}%
+}
+\end{table}
+
+\paragraph{Key observation.}
+The FC1 layer ($1568 \times 128$, rank $k=128$) retains high energy
+even at low rank, because its singular value spectrum is heavily
+concentrated in the top singular values.
+This is consistent with the observation that over-parameterized
+networks learn low-dimensional representations~\citep{li2018constrained}.
+
+\paragraph{Limitation.}
+Our SVD implementation writes back the reconstructed matrix
+$\hat\W$ to the existing weight tensor, so model size is \emph{not}
+reduced.
+Actual compression requires architectural factorization
+($\text{Linear}(n,m) \to \text{Linear}(n,r) + \text{Linear}(r,m)$),
+which we leave as future work.

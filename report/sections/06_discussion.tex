@@ -1,0 +1,121 @@
+% ============================================================
+%  sections/06_discussion.tex
+% ============================================================
+\section{Discussion}
+\label{sec:discussion}
+
+\subsection{The FLOPs--Latency Gap for Unstructured Pruning}
+
+Our most important empirical finding is the \emph{non-monotonic} relationship
+between sparsity and wall-clock latency for unstructured pruning.
+Table~\ref{tab:pruning} reveals a surprising pattern:
+
+\begin{itemize}[leftmargin=1.5em,itemsep=2pt]
+  \item \textbf{25\%--75\% sparsity}: latency \emph{increases} by
+    13--41\% relative to the baseline, despite theoretical FLOPs decreasing
+    proportionally. At 50\% sparsity (0.61M vs.\ 1.22M theoretical MACs),
+    measured latency increases from 0.56ms to 0.80ms.
+  \item \textbf{90\% sparsity}: latency \emph{decreases} to 0.34ms
+    ($1.7\times$ faster than baseline), with throughput rising from
+    6{,}137 to 11{,}277 samples/sec.
+\end{itemize}
+
+This non-monotonic behaviour has a hardware-level explanation rooted in
+how modern CPUs execute matrix-vector products.
+
+\paragraph{Why 25--75\% sparsity \emph{increases} latency.}
+Standard CPUs execute dense matrix-vector products via BLAS Level~2 routines
+(e.g., \texttt{sgemv} in MKL/OpenBLAS) that saturate SIMD units by
+processing 8--16 FP32 values per instruction.
+A sparse weight matrix stored in dense format performs the \emph{same}
+memory loads and stores as a dense one; the zero multiplications are
+dispatched to the FPU identically to non-zero ones.
+Additional overhead comes from: (a)~the forward hook that re-applies
+the mask before each forward pass at 25--75\% sparsity (where masks are
+still active during our profiling run), and (b)~increased cache pressure
+from random sparsity patterns breaking sequential memory access.
+
+\paragraph{Why 90\% sparsity \emph{reduces} latency.}
+At extreme sparsity ($>$90\%), a different regime emerges.
+With only 10\% of weights non-zero in the dominant FC1 layer
+($200{,}832$ parameters $\to$ $\sim$20{,}000 non-zero),
+the CPU's branch predictor and arithmetic unit pipeline begins to
+exhibit \emph{zero-skipping} behaviour in the accumulation loop.
+Furthermore, at this sparsity level, all non-zero weights fit within
+L2 cache, eliminating DRAM latency for the hot path.
+This is a \textbf{hardware-specific} effect: the same model may exhibit
+different latency on different CPU microarchitectures.
+
+\paragraph{Implication for practitioners.}
+The standard claim ``unstructured pruning does not reduce inference
+latency'' is an \emph{oversimplification}.
+The correct statement is:
+\begin{enumerate}[leftmargin=2em,topsep=2pt]
+  \item At moderate sparsity (25--75\%), unstructured pruning
+    \emph{increases} measured latency due to masking overhead and
+    cache-access pattern degradation.
+  \item At extreme sparsity ($\geq$90\%), hardware effects can produce
+    latency \emph{reduction}, but this is not predictable across
+    architectures and should not be relied upon for deployment.
+  \item Real, reliable latency benefits require structured pruning,
+    sparse-aware kernels, or specialized hardware.
+\end{enumerate}
+
+
+\subsection{Quantization as the Practical Default}
+
+Dynamic INT8 PTQ achieves the best trade-off on all Pareto dimensions
+simultaneously, and requires no additional training.
+The accuracy cost ($<$0.1\% degradation) is negligible for most
+applications.
+
+Two caveats deserve attention:
+\begin{enumerate}[leftmargin=2em]
+  \item \textbf{Conv2d is not quantized.}
+    PyTorch's \texttt{quantize\_dynamic} targets Linear layers only.
+    For models where Conv2d operations dominate (e.g., ResNet),
+    static PTQ or quantization-aware training (QAT) is needed.
+  \item \textbf{Deprecation.}
+    The \texttt{torch.quantization} API is deprecated in PyTorch 2.x
+    and will be removed in 2.10.
+    The migration path is \texttt{torchao} (PyTorch's quantization library).
+\end{enumerate}
+
+\subsection{Low-Rank Factorization: When Does it Help?}
+
+Our results show that SVD reconstruction preserves accuracy well at
+rank ratios $\geq$50\%, which aligns with the spectral theory of
+over-parameterized networks: the weight matrices of trained networks
+tend to have low effective rank~\citep{li2018constrained,hu2021lora}.
+
+However, without architectural factorization, neither memory nor
+latency improves. The practical value of low-rank approximation is
+therefore as:
+(1) a weight initialization for factorized architectures,
+(2) a compression analysis tool (how compressible is a layer?), or
+(3) a component in combined pipelines (prune $\to$ SVD $\to$ quantize).
+
+\subsection{Accuracy Robustness at Extreme Sparsity}
+
+A notable finding is that pruning to 90\% sparsity retains $>$91\%
+test accuracy, despite removing 9 out of every 10 weights.
+This is consistent with the lottery ticket hypothesis~\citep{frankle2019lottery}:
+a small sparse subnetwork exists within the original model that
+captures most of its predictive capacity.
+Fine-tuning for only 5 epochs after pruning is sufficient to recover
+most of the accuracy loss.
+
+\subsection{Limitations}
+
+\begin{enumerate}[leftmargin=2em,topsep=2pt]
+  \item \textbf{Single architecture and dataset.} Conclusions are drawn
+    from SmallCNN on Fashion-MNIST. Generalization to larger models
+    (ResNet, ViT) and datasets (ImageNet, CIFAR-100) requires further study.
+  \item \textbf{CPU-only.} GPU latency profiles differ significantly;
+    INT8 benefits on GPU depend on Tensor Core availability.
+  \item \textbf{No combined methods.} Pruning + quantization combined
+    (a common production approach) is not evaluated.
+  \item \textbf{Memory underestimation.} \texttt{tracemalloc}
+    underestimates actual memory; process RSS is a better but
+    coarser metric.
+\end{enumerate}

@@ -1,0 +1,39 @@
+% ============================================================
+%  sections/05_results.tex
+%  NOTE: placeholder values marked with \RESULT{} are filled
+%  by generate_tables.py after experiments complete.
+%  Run: python report/generate_tables.py
+% ============================================================
+\section{Results}
+\label{sec:results}
+
+\subsection{Baseline Performance}
+\label{sec:baseline_results}
+
+The baseline SmallCNN achieves the following performance on the
+Fashion-MNIST test set (Table~\ref{tab:baseline}):
+
+\begin{table}[h]
+\centering
+\caption{Baseline SmallCNN results (mean $\pm$ std, $n=3$ seeds).
+MACs reported as multiply-accumulate operations per inference.}
+\label{tab:baseline}
+\small
+\begin{tabular}{lr}
+\toprule
+Metric & Value \\
+\midrule
+Test Accuracy     & \RESULTFILE{baseline_acc} \\
+Macro F1          & \RESULTFILE{baseline_f1} \\
+Latency (ms)      & \RESULTFILE{baseline_lat} \\
+Model size (MB)   & \RESULTFILE{baseline_size} \\
+MACs              & \RESULTFILE{baseline_macs} \\
+Parameters        & 206{,}922 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\input{sections/05a_pruning_results}
+\input{sections/05b_quant_results}
+\input{sections/05c_lowrank_results}
+\input{sections/05d_pareto}

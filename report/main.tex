@@ -1,0 +1,126 @@
+
+%  main.tex — Full arXiv paper
+%  "Empirical Trade-offs in Neural Network Compression Under
+%   Tight Computational Budgets"
+%  Compiled with: pdflatex main.tex && bibtex main && pdflatex main.tex (x2)
+% ============================================================
+\documentclass[10pt,twocolumn]{article}
+
+% ---- Packages -------------------------------------------------------
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{hyperref}
+\usepackage{url}
+\usepackage{xcolor}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{microtype}
+\usepackage{natbib}
+\usepackage{enumitem}
+\usepackage{siunitx}
+
+% ---- Theorem environments -------------------------------------------
+\newtheorem{theorem}{Theorem}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{definition}{Definition}
+\newtheorem{remark}{Remark}
+
+% ---- Macros ---------------------------------------------------------
+\newcommand{\W}{\mathbf{W}}
+\newcommand{\M}{\mathbf{M}}
+\newcommand{\tW}{\tilde{\mathbf{W}}}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\norm}[1]{\left\|#1\right\|}
+\newcommand{\frob}[1]{\left\|#1\right\|_F}
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\diag}{\operatorname{diag}}
+\newcommand{\rank}{\operatorname{rank}}
+\DeclareMathOperator*{\argmin}{arg\,min}
+
+% ---- Metadata -------------------------------------------------------
+\title{\textbf{Empirical Trade-offs in Neural Network Compression:\\
+Under Tight Computational Budgets}\\[4pt]
+{\large A Controlled Benchmark of Pruning, Quantization,\\
+and Low-Rank Factorization on Embedded-Scale CNNs}}
+
+\author{
+  Nguyen Huynh Dang Nhut\\
+  \textit{Faculty of Computer Science --- Program in Artificial Intelligence}\\
+  \textit{University of Information Technology, VNU-HCM}\\
+  \texttt{26521522@gm.uit.edu.vn}
+}
+
+\date{\today}
+
+% ---- Auto-generated results macros (run generate_tables.py first) -----
+\IfFileExists{sections/results_macros.tex}{%
+  \input{sections/results_macros}
+}{%
+  % Fallback: \RESULTFILE{x} shows placeholder text
+  \newcommand{\RESULTFILE}[1]{\textbf{[??]}}
+}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+We present a controlled empirical study of three canonical neural network
+compression techniques—magnitude-based unstructured pruning, post-training
+quantization (PTQ), and low-rank matrix factorization via truncated
+singular value decomposition (SVD)—applied to a compact convolutional
+network trained on Fashion-MNIST.
+Our benchmark measures seven metrics across all compression configurations:
+test accuracy, macro-F1, inference latency, peak RAM, theoretical FLOPs,
+weight sparsity, and model size.
+We provide formal proofs of sparsity preservation under gradient descent with
+masks, an approximation error bound for INT8 quantization, and the
+Eckart-Young optimality theorem for SVD-based compression.
+Our key empirical findings are:
+(1)~unstructured pruning up to 75\% sparsity preserves accuracy within
+0.3\% of the baseline while reducing theoretical FLOPs proportionally,
+but \emph{increases} wall-clock inference latency by 13--41\% due to
+masking overhead and cache-access degradation on standard hardware;
+(2)~at 90\% sparsity, an unexpected latency \emph{reduction} of 40\%
+is observed, explained by L2 cache residency and CPU zero-skipping effects;
+(3)~dynamic INT8 quantization achieves a 4$\times$ model size reduction
+with $<$0.1\% accuracy degradation and is the only method that
+\emph{reliably} reduces both size and latency across sparsity levels;
+(4)~low-rank factorization degrades accuracy gracefully as rank decreases,
+but without architectural factorization the memory footprint is unchanged.
+All code, data, and experiment configurations are publicly available.
+\end{abstract}
+
+% ---- Keywords & arXiv Categories -------------------------------------
+\noindent\textbf{Keywords:} neural network compression, magnitude pruning,
+post-training quantization, low-rank factorization, TinyML, efficient AI,
+empirical benchmark.\\[4pt]
+\noindent\textbf{arXiv Categories:} Machine Learning (\texttt{cs.LG}), Computer Vision and Pattern Recognition (\texttt{cs.CV}).
+
+
+% ---- Sections -------------------------------------------------------
+\input{sections/01_intro}
+\input{sections/02_related}
+\input{sections/03_methods}
+\input{sections/04_setup}
+\input{sections/05_results}
+\input{sections/06_discussion}
+\input{sections/07_conclusion}
+
+% ---- Bibliography ---------------------------------------------------
+\bibliographystyle{abbrvnat}
+\bibliography{refs}
+
+% ---- Appendices -----------------------------------------------------
+\appendix
+\input{sections/appendix}
+
+\end{document}

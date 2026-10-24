@@ -1,0 +1,73 @@
+% ============================================================
+%  sections/02_related.tex
+% ============================================================
+\section{Background and Related Work}
+\label{sec:related}
+
+\subsection{Magnitude Pruning}
+
+The idea of removing unimportant weights from neural networks dates to
+\citet{lecun1990optimal}, who used second-order information (Hessian diagonal)
+to identify low-salience weights.
+\citet{han2015learning} introduced the modern magnitude-pruning pipeline:
+train $\to$ prune low-$|w|$ weights $\to$ fine-tune.
+\citet{han2015deep} extended this to a compression pipeline achieving
+$35\times$ reduction on AlexNet.
+
+\paragraph{Structured vs.\ unstructured pruning.}
+\emph{Unstructured} pruning (our focus) zeros individual weights without
+regard to their position, yielding sparse weight tensors.
+While theoretically appealing, unstructured sparsity does not reduce
+inference time on standard dense hardware without sparse-BLAS kernels or
+specialized hardware~\citep{gale2019state}.
+\emph{Structured} pruning removes entire channels or filters, making the
+network genuinely smaller and faster~\citep{li2016pruning,molchanov2017pruning};
+this is left as future work.
+
+\citet{zhu2018prune} show that large sparse models consistently outperform
+small dense models at equivalent parameter counts—suggesting that the
+network topology matters as much as the weight values.
+
+\subsection{Post-Training Quantization}
+
+Quantization reduces the bit-width of weights and activations.
+\citet{jacob2018quantization} formalize the INT8 affine quantization scheme
+used in TensorFlow Lite and PyTorch's FBGEMM backend.
+\citet{hubara2017quantized} study training with quantized representations.
+
+\emph{Dynamic PTQ} (our primary method) quantizes only weights;
+activations are quantized at runtime per-batch.
+It requires no calibration data and is suitable for our setting.
+\emph{Static PTQ} also quantizes activations using calibration statistics,
+generally achieving better accuracy at the cost of requiring representative data.
+
+On x86 CPUs, INT8 operations are accelerated by AVX2/AVX-512 SIMD instructions
+via the FBGEMM backend, making quantization one of the few compression methods
+where theoretical savings (4$\times$ fewer bytes) translates to real
+latency reduction~\citep{deng2020model}.
+
+\subsection{Low-Rank Factorization}
+
+\citet{denton2014exploiting} demonstrate that convolutional filter responses
+lie in low-dimensional subspaces, enabling $2\times$ speedup via SVD
+decomposition of filter tensors.
+\citet{li2018constrained} extend this to constrained low-rank training.
+\citet{khodak2021initialization} study SVD-based initialization for
+factorized architectures.
+
+The key distinction between \emph{reconstruction}
+(our approach: write back $\hat{\W} = \mathbf{U}_r \diag(\mathbf{s}_r) \mathbf{V}_r^\top$)
+and \emph{factorization} (replace one Linear layer with two: $\R^n \to \R^r \to \R^m$)
+is important: only the latter achieves actual parameter and memory reduction.
+
+\subsection{Comparative Benchmarks}
+
+\citet{blalock2020state} conduct a systematic review of pruning literature,
+finding that comparisons across papers are often not reproducible due to
+inconsistent evaluation protocols.
+They call for standardized benchmarks—our work answers this call at
+small scale.
+\citet{gale2019state} show that simple magnitude pruning with careful
+hyperparameter tuning is competitive with complex pruning algorithms.
+Our work confirms this finding while adding quantization and low-rank as
+comparators.

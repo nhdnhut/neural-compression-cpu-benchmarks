@@ -1,0 +1,47 @@
+% ============================================================
+%  sections/05a_pruning_results.tex
+% ============================================================
+\subsection{Pruning: Accuracy vs.\ Sparsity}
+\label{sec:pruning_results}
+
+Table~\ref{tab:pruning} summarizes the effect of global L1
+unstructured pruning at four sparsity levels.
+
+\begin{table}[ht]
+\centering
+\caption{Pruning sweep results.
+$\Delta$Acc: accuracy change relative to FP32 baseline.
+FLOPs reduction: theoretical, proportional to sparsity.
+Lat.\ change: measured latency relative to baseline.}
+\label{tab:pruning}
+\small
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{ccccccc}
+\toprule
+Sparsity & Acc (\%) & $\Delta$Acc & F1 (\%) & FLOPs & Lat.\ (ms) & Lat.\ $\Delta$ \\
+\midrule
+0\% (base) & \RESULTFILE{p0_acc} & --- & \RESULTFILE{p0_f1} & 1.22M & \RESULTFILE{p0_lat} & --- \\
+25\%       & \RESULTFILE{p25_acc} & \RESULTFILE{p25_dacc} & \RESULTFILE{p25_f1} & 0.91M & \RESULTFILE{p25_lat} & \RESULTFILE{p25_dlat} \\
+50\%       & \RESULTFILE{p50_acc} & \RESULTFILE{p50_dacc} & \RESULTFILE{p50_f1} & 0.61M & \RESULTFILE{p50_lat} & \RESULTFILE{p50_dlat} \\
+75\%       & \RESULTFILE{p75_acc} & \RESULTFILE{p75_dacc} & \RESULTFILE{p75_f1} & 0.30M & \RESULTFILE{p75_lat} & \RESULTFILE{p75_dlat} \\
+90\%       & \RESULTFILE{p90_acc} & \RESULTFILE{p90_dacc} & \RESULTFILE{p90_f1} & 0.12M & \RESULTFILE{p90_lat} & \RESULTFILE{p90_dlat} \\
+\bottomrule
+\end{tabular}%
+}
+\end{table}
+
+\paragraph{Key observation (RQ1).}
+Pruning up to 75\% sparsity preserves accuracy within 0.3\% of the
+FP32 baseline ($-$0.09\% at 75\%).
+Accuracy degradation becomes notable only at 90\% sparsity ($-$0.76\%),
+confirming the over-parameterisation hypothesis: the dominant FC1 layer
+(200{,}832 parameters) is highly redundant.
+
+\paragraph{Key observation (RQ2) — non-monotonic latency.}
+Contrary to the simplified ``no speedup'' narrative, we observe a
+\emph{non-monotonic} latency profile:
+moderate sparsity (25--75\%) \emph{increases} latency by 13--41\%,
+while extreme sparsity (90\%) \emph{decreases} latency by 40\%
+relative to the baseline.
+Neither outcome is predicted by theoretical FLOPs analysis alone.
+See Section~\ref{sec:discussion} for a detailed hardware-level explanation.

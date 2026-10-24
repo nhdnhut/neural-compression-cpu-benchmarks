@@ -1,0 +1,371 @@
+% ============================================================
+%  sections/03_methods.tex
+% ============================================================
+\section{Methods}
+\label{sec:methods}
+
+\subsection{Model Architecture}
+\label{sec:model}
+
+We use \textbf{SmallCNN}, a compact convolutional network designed for
+Fashion-MNIST~\citep{xiao2017fashion}.
+The architecture is chosen to be small enough for reproducible experiments
+on CPU-only hardware while being representative of embedded-scale classifiers.
+
+\begin{table}[ht]
+\centering
+\caption{SmallCNN layer specifications.
+$K$: kernel size, $P$: padding, $S$: stride.
+Parameter counts include biases.}
+\label{tab:arch}
+\small
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{lrrr}
+\toprule
+Layer & Output shape & Params & Notes \\
+\midrule
+Conv2d(1,16,$K$=3,$P$=1) & $16{\times}28{\times}28$ & 160   & -- \\
+ReLU + MaxPool2d(2)      & $16{\times}14{\times}14$ & 0     & -- \\
+Conv2d(16,32,$K$=3,$P$=1)& $32{\times}14{\times}14$ & 4{,}640 & -- \\
+ReLU + MaxPool2d(2)      & $32{\times}7{\times}7$   & 0     & -- \\
+Dropout2d($p$=0.25)      & same                     & 0     & -- \\
+Flatten                  & 1{,}568                  & 0     & -- \\
+Linear(1568,128)         & 128                      & 200{,}832 & FC1 \\
+ReLU + Dropout($p$=0.25) & 128                      & 0     & -- \\
+Linear(128,10)           & 10                       & 1{,}290 & FC2 \\
+\midrule
+\textbf{Total}           &                          & \textbf{206{,}922} & \\
+\bottomrule
+\end{tabular}%
+}
+\end{table}
+
+\noindent The dominant parameter block is FC1 (97\% of total parameters),
+which is the primary target for quantization and low-rank compression.
+
+\subsection{Compression Algorithms}
+\label{sec:algorithms}
+
+\subsubsection{Magnitude-Based Global Unstructured Pruning}
+\label{sec:pruning}
+
+\paragraph{Algorithm.}
+Given a trained model with weight set $\{\mathbf{w}_\ell\}_{\ell=1}^L$,
+global L1 unstructured pruning with ratio $\rho \in [0,1)$ proceeds as:
+\begin{enumerate}[leftmargin=2em,topsep=2pt,itemsep=2pt]
+  \item Compute the $\rho$-quantile threshold $\tau$ of
+    $\{|w| : w \in \bigcup_\ell \mathbf{w}_\ell\}$.
+  \item For each weight $w_i$: set $M_i = \mathbf{1}[|w_i| > \tau]$.
+  \item Apply mask: $\tilde{w}_i = M_i \cdot w_i$ (zero out pruned weights).
+\end{enumerate}
+
+\begin{algorithm}[h]
+\caption{Global L1 Unstructured Pruning with Fine-Tuning}
+\label{alg:pruning}
+\begin{algorithmic}[1]
+\Require Trained model $\theta$, pruning ratio $\rho$, fine-tune epochs $T$
+\State Compute global threshold $\tau = \text{quantile}_\rho(\{|w| : w \in \theta\})$
+\State Initialize mask $M_i \leftarrow \mathbf{1}[|\theta_i| > \tau]$, $\forall i$
+\State Apply: $\tilde\theta \leftarrow M \odot \theta$
+\For{epoch $t = 1, \ldots, T$}              \Comment{Fine-tune with mask active}
+  \State Compute loss $\mathcal{L}(\tilde\theta)$
+  \State $\theta \leftarrow \theta - \eta \cdot (M \odot \nabla_\theta \mathcal{L})$
+  \State Re-apply: $\tilde\theta \leftarrow M \odot \theta$
+\EndFor
+\State \Return $\tilde\theta$ (sparse model with permanent zeros)
+\end{algorithmic}
+\end{algorithm}
+
+\paragraph{Theoretical Analysis.}
+
+We prove the critical property that makes this algorithm meaningful: pruned
+weights remain zero throughout fine-tuning.
+
+\begin{theorem}[Sparsity Preservation Under Masked Gradient Optimization]
+\label{thm:sparsity}
+Let $\M \in \{0,1\}^d$ be a fixed binary pruning mask, and let $\tilde\theta = \M \odot \theta$ denote the effective parameter vector.
+Consider the optimization of loss $\mathcal{L}(\tilde\theta)$ under parameters $\theta \in \R^d$ using any of the following standard optimizers:
+\begin{enumerate}[label=(\alph*),leftmargin=1.5em,itemsep=1pt]
+  \item \textbf{Stochastic Gradient Descent (SGD):} $\theta^{(t+1)} = \theta^{(t)} - \eta g^{(t)}$, where $g^{(t)} = \nabla_\theta \mathcal{L}(\tilde\theta^{(t)})$;
+  \item \textbf{Momentum SGD:} $v^{(t+1)} = \mu v^{(t)} + g^{(t)}$ with initialization $v^{(0)} = \mathbf{0}$, and $\theta^{(t+1)} = \theta^{(t)} - \eta v^{(t+1)}$;
+  \item \textbf{Adam / RMSProp:} $m^{(t+1)} = \beta_1 m^{(t)} + (1-\beta_1) g^{(t)}$ and $v^{(t+1)} = \beta_2 v^{(t)} + (1-\beta_2) (g^{(t)})^{\odot 2}$ with initial buffers $m^{(0)} = v^{(0)} = \mathbf{0}$, and update $\theta^{(t+1)} = \theta^{(t)} - \eta \frac{m^{(t+1)} / (1-\beta_1^{t+1})}{\sqrt{v^{(t+1)} / (1-\beta_2^{t+1})} + \epsilon}$.
+\end{enumerate}
+In all cases, for every pruned index $i \in \{1, \ldots, d\}$ where $M_i = 0$, the effective weight is strictly zero at every optimization step:
+\begin{equation}
+  \tilde\theta_i^{(t)} = 0 \quad \text{for all } t \geq 0.
+\end{equation}
+Furthermore, the unpruned coordinates evolve identically to an unconstrained optimization problem restricted to the active subspace $\operatorname{supp}(\M) = \{j : M_j = 1\}$.
+\end{theorem}
+
+\begin{proof}
+We proceed by induction on iteration $t$.
+By definition of the Hadamard product, the forward evaluation produces $\tilde\theta_i^{(t)} = M_i \theta_i^{(t)}$.
+By the multivariate chain rule, the gradient of $\mathcal{L}$ with respect to the dense parameter $\theta_i$ is:
+\begin{equation}
+  g_i^{(t)} = \nabla_{\theta_i} \mathcal{L}(\tilde\theta^{(t)}) = \sum_{j=1}^d \frac{\partial \mathcal{L}}{\partial \tilde\theta_j} \cdot \frac{\partial \tilde\theta_j}{\partial \theta_i} = \frac{\partial \mathcal{L}}{\partial \tilde\theta_i} \cdot \frac{\partial (M_i \theta_i)}{\partial \theta_i} = M_i \cdot \frac{\partial \mathcal{L}}{\partial \tilde\theta_i}.
+  \label{eq:chain_rigorous}
+\end{equation}
+For any pruned index $i$ where $M_i = 0$, Eq.~\eqref{eq:chain_rigorous} yields $g_i^{(t)} = 0 \cdot \frac{\partial \mathcal{L}}{\partial \tilde\theta_i} = 0$, regardless of the magnitude of the loss gradient.
+
+Now consider each optimizer:
+\begin{enumerate}[label=(\alph*),leftmargin=1.5em]
+  \item \textbf{SGD:} The update is $\theta_i^{(t+1)} = \theta_i^{(t)} - \eta g_i^{(t)} = \theta_i^{(t)} - 0 = \theta_i^{(t)}$.
+    Hence $\theta_i^{(t)} = \theta_i^{(0)}$ for all $t$.
+    Multiplying by $M_i = 0$ gives $\tilde\theta_i^{(t)} = M_i \theta_i^{(t)} = 0$ for all $t \geq 0$.
+  \item \textbf{Momentum SGD:} We have $v_i^{(0)} = 0$.
+    Assuming $v_i^{(t)} = 0$, the momentum update is:
+    \begin{equation}
+      v_i^{(t+1)} = \mu v_i^{(t)} + g_i^{(t)} = \mu \cdot 0 + 0 = 0.
+    \end{equation}
+    The parameter update is $\theta_i^{(t+1)} = \theta_i^{(t)} - \eta v_i^{(t+1)} = \theta_i^{(t)}$.
+    By mathematical induction, $v_i^{(t)} = 0$ and $\theta_i^{(t)} = \theta_i^{(0)}$ for all $t \geq 0$.
+    Therefore, $\tilde\theta_i^{(t)} = M_i \theta_i^{(t)} = 0 \cdot \theta_i^{(0)} = 0$.
+  \item \textbf{Adam:} With $m_i^{(0)} = v_i^{(0)} = 0$, if $m_i^{(t)} = v_i^{(t)} = 0$, then:
+    \begin{equation}
+      m_i^{(t+1)} = \beta_1 \cdot 0 + (1-\beta_1) \cdot 0 = 0, \quad v_i^{(t+1)} = \beta_2 \cdot 0 + (1-\beta_2) \cdot 0^2 = 0.
+    \end{equation}
+    The bias-corrected first moment is $\hat{m}_i^{(t+1)} = 0$.
+    The parameter displacement is $-\eta \frac{0}{\sqrt{0} + \epsilon} = 0$.
+    Hence $\theta_i^{(t+1)} = \theta_i^{(t)}$.
+    By induction, $\tilde\theta_i^{(t)} = M_i \theta_i^{(t)} = 0$ for all $t \geq 0$.
+\end{enumerate}
+Finally, for any active coordinate $j \in \operatorname{supp}(\M)$ ($M_j = 1$), Eq.~\eqref{eq:chain_rigorous} reduces to $g_j^{(t)} = \frac{\partial \mathcal{L}}{\partial \tilde\theta_j}$, which is identical to the unconstrained gradient with respect to $\tilde\theta_j$.
+This completes the proof. \qed
+\end{proof}
+
+\begin{remark}
+Theorem~\ref{thm:sparsity} guarantees that fine-tuning with a persistent mask buffer never contaminates or regenerates pruned weights, across all canonical first-order, momentum, and adaptive optimizers.
+Crucially, this property holds only while the forward hook remains attached.
+Executing \texttt{prune.remove()} before fine-tuning would discard the hook and cause non-zero gradients to resurrect pruned weights.
+\end{remark}
+
+\subsubsection{Post-Training Quantization}
+\label{sec:quantization}
+
+We apply dynamic INT8 post-training quantization
+(PTQ)~\citep{jacob2018quantization} to the Linear layers of SmallCNN.
+Weights are quantized to 8-bit integers; activations are quantized
+dynamically at inference time.
+
+\paragraph{Quantization scheme.}
+For a weight tensor $\mathbf{w} \in [-R, R]^n$, uniform symmetric INT8
+quantization maps each value $w$ to:
+\begin{align}
+  q(w) = \left\lfloor \frac{w}{\Delta} \right\rceil, \quad \Delta = \frac{2R}{255},
+  \label{eq:quant_scheme}
+\end{align}
+where $\lfloor \cdot \rceil$ denotes rounding to the nearest integer,
+and $q(w) \in \{-127, \ldots, 127\}$.
+The dequantized value is $\hat{w} = q(w) \cdot \Delta$.
+
+\begin{theorem}[INT8 Quantization Error and Network Output Perturbation Bound]
+\label{thm:quant_error}
+Let $\W \in [-R, R]^{m \times n}$ denote a weight matrix quantized via uniform symmetric 8-bit quantization with step size $\Delta = \frac{2R}{255}$, giving dequantized matrix $\hat{\W} = \Delta \cdot q(\W)$, and perturbation $\mathbf{E} = \W - \hat{\W}$.
+Then:
+\begin{enumerate}[label=(\roman*),leftmargin=1.5em,itemsep=2pt]
+  \item \textbf{Element-wise Bound:} For every entry $(j, k)$,
+  \begin{equation}
+    |w_{jk} - \hat{w}_{jk}| \leq \frac{\Delta}{2} = \frac{R}{255}.
+    \label{eq:elem_bound}
+  \end{equation}
+  \item \textbf{Matrix Frobenius and Spectral Bounds:} The perturbation $\mathbf{E}$ satisfies:
+  \begin{equation}
+    \|\mathbf{E}\|_F \leq \frac{\sqrt{mn} R}{255}, \quad \|\mathbf{E}\|_2 \leq \frac{\sqrt{mn} R}{255}.
+    \label{eq:frob_bound}
+  \end{equation}
+  \item \textbf{End-to-End Network Output Perturbation Bound:}
+    Let $f(\mathbf{x}) = \W_L \sigma(\W_{L-1} \sigma(\cdots \sigma(\W_1 \mathbf{x})\cdots))$ be an $L$-layer network with 1-Lipschitz activation functions $\sigma$ satisfying $\sigma(\mathbf{0}) = \mathbf{0}$ (e.g., ReLU).
+    If each weight matrix $\W_\ell$ undergoes quantization perturbation $\mathbf{E}_\ell = \W_\ell - \hat{\W}_\ell$, the output difference on any input $\mathbf{x} \in \R^d$ is bounded by:
+    \begin{align}
+      \|f(\mathbf{x}) - \hat{f}(\mathbf{x})\|_2
+      &\leq \|\mathbf{x}\|_2 \sum_{\ell=1}^L \|\mathbf{E}_\ell\|_2 \nonumber\\
+      &\quad \times \prod_{\substack{j=1 \\ j \neq \ell}}^L (\|\W_j\|_2 + \|\mathbf{E}_j\|_2).
+      \label{eq:net_bound}
+    \end{align}
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+\textbf{Part (i):} By definition of integer nearest-neighbor rounding, for any real $z \in \R$, $|z - \lfloor z \rceil| \leq \frac{1}{2}$.
+Setting $z = w_{jk} / \Delta$, we have:
+\begin{equation}
+  |w_{jk} - \hat{w}_{jk}| = \Delta |z - \lfloor z \rceil| \leq \frac{\Delta}{2} = \frac{R}{255}.
+\end{equation}
+
+\textbf{Part (ii):} By definition of the Frobenius norm:
+\begin{align}
+  \|\mathbf{E}\|_F^2
+  &= \sum_{j=1}^m \sum_{k=1}^n |w_{jk} - \hat{w}_{jk}|^2 \nonumber\\
+  &\leq \sum_{j=1}^m \sum_{k=1}^n \left(\frac{R}{255}\right)^2 = mn \left(\frac{R}{255}\right)^2.
+\end{align}
+Taking the square root gives $\|\mathbf{E}\|_F \leq \frac{\sqrt{mn} R}{255}$.
+Since the spectral norm is bounded by the Frobenius norm ($\|\mathbf{E}\|_2 \leq \|\mathbf{E}\|_F$), the spectral bound follows directly.
+
+\textbf{Part (iii):} We define intermediate activations $\mathbf{h}_0 = \hat{\mathbf{h}}_0 = \mathbf{x}$, and for $\ell \in \{1, \ldots, L-1\}$:
+$\mathbf{h}_\ell = \sigma(\W_\ell \mathbf{h}_{\ell-1})$ and $\hat{\mathbf{h}}_\ell = \sigma(\hat\W_\ell \hat{\mathbf{h}}_{\ell-1})$, with $f(\mathbf{x}) = \W_L \mathbf{h}_{L-1}$ and $\hat{f}(\mathbf{x}) = \hat\W_L \hat{\mathbf{h}}_{L-1}$.
+Since $\sigma$ is 1-Lipschitz ($\|\sigma(\mathbf{u}) - \sigma(\mathbf{v})\|_2 \leq \|\mathbf{u} - \mathbf{v}\|_2$):
+\begin{align}
+  \|\mathbf{h}_\ell - \hat{\mathbf{h}}_\ell\|_2
+  &\leq \|\W_\ell \mathbf{h}_{\ell-1} - \hat\W_\ell \hat{\mathbf{h}}_{\ell-1}\|_2 \nonumber\\
+  &= \|\W_\ell(\mathbf{h}_{\ell-1} - \hat{\mathbf{h}}_{\ell-1}) + (\W_\ell - \hat\W_\ell)\hat{\mathbf{h}}_{\ell-1}\|_2 \nonumber\\
+  &\leq \|\W_\ell\|_2 \|\mathbf{h}_{\ell-1} - \hat{\mathbf{h}}_{\ell-1}\|_2 + \|\mathbf{E}_\ell\|_2 \|\hat{\mathbf{h}}_{\ell-1}\|_2.
+  \label{eq:rec_error}
+\end{align}
+Since $\sigma$ is 1-Lipschitz and $\sigma(\mathbf{0})=\mathbf{0}$, $\|\hat{\mathbf{h}}_{\ell-1}\|_2 \leq \|\mathbf{x}\|_2 \prod_{j=1}^{\ell-1} \|\hat\W_j\|_2 \leq \|\mathbf{x}\|_2 \prod_{j=1}^{\ell-1} (\|\W_j\|_2 + \|\mathbf{E}_j\|_2)$.
+Unrolling the recurrence \eqref{eq:rec_error} across all $L$ layers yields:
+\begin{align}
+  \|f(\mathbf{x}) - \hat{f}(\mathbf{x})\|_2
+  &\leq \|\mathbf{x}\|_2 \sum_{\ell=1}^L \|\mathbf{E}_\ell\|_2 \nonumber\\
+  &\quad \times \prod_{\substack{j=1 \\ j \neq \ell}}^L (\|\W_j\|_2 + \|\mathbf{E}_j\|_2).
+\end{align}
+This completes the proof. \qed
+\end{proof}
+
+\subsubsection{Low-Rank Matrix Factorization via Truncated SVD}
+\label{sec:lowrank}
+
+\paragraph{Algorithm.}
+For each Linear layer with weight matrix $\W \in \R^{m \times n}$,
+we compute the economy SVD $\W = \mathbf{U} \diag(\mathbf{s}) \mathbf{V}^\top$,
+where $\mathbf{U} \in \R^{m \times k}$, $\mathbf{s} \in \R^k_+$,
+$\mathbf{V} \in \R^{n \times k}$, and $k = \min(m,n)$.
+For rank ratio $\rho \in (0,1]$, we keep only $r = \lceil \rho k \rceil$
+singular values and reconstruct:
+\begin{align}
+  \hat{\W} = \mathbf{U}_r \diag(\mathbf{s}_r) \mathbf{V}_r^\top,
+  \label{eq:svd_recon}
+\end{align}
+where subscript $r$ denotes the leading $r$ columns/rows.
+This approximation is optimal in the Frobenius norm sense:
+
+\begin{theorem}[Eckart-Young-Mirsky Optimal Low-Rank Approximation]
+\label{thm:eckart_young}
+Let $\W \in \R^{m \times n}$ have singular value decomposition $\W = \sum_{i=1}^k \sigma_i \mathbf{u}_i \mathbf{v}_i^\top$, with $k = \min(m,n)$ and singular values ordered $\sigma_1 \geq \sigma_2 \geq \cdots \geq \sigma_k \geq 0$.
+For any target rank $r < k$, the rank-$r$ truncated SVD reconstruction:
+\begin{equation}
+  \W_r = \sum_{i=1}^r \sigma_i \mathbf{u}_i \mathbf{v}_i^\top
+\end{equation}
+is the optimal rank-$r$ approximation of $\W$ simultaneously in the operator norm (spectral norm) and the unitarily invariant Frobenius norm:
+\begin{align}
+  \min_{\rank(\mathbf{B}) \leq r} \|\W - \mathbf{B}\|_2 &= \|\W - \W_r\|_2 = \sigma_{r+1}, \label{eq:ey_spectral} \\
+  \min_{\rank(\mathbf{B}) \leq r} \frob{\W - \mathbf{B}}^2 &= \frob{\W - \W_r}^2 = \sum_{i=r+1}^{k} \sigma_i^2. \label{eq:ey_frobenius}
+\end{align}
+\end{theorem}
+
+\begin{proof}
+We divide the complete proof into two parts: the spectral norm error \eqref{eq:ey_spectral} and the Frobenius norm error \eqref{eq:ey_frobenius}.
+
+\paragraph{Part 1: Spectral Norm Optimality.}
+\emph{Achievability:} For the truncated reconstruction $\W_r$:
+\begin{equation}
+  \W - \W_r = \sum_{i=r+1}^k \sigma_i \mathbf{u}_i \mathbf{v}_i^\top.
+\end{equation}
+Since $\{\mathbf{u}_i\}_{i=r+1}^k$ and $\{\mathbf{v}_i\}_{i=r+1}^k$ are orthonormal sets, the singular values of $\W - \W_r$ are precisely $\{\sigma_{r+1}, \sigma_{r+2}, \ldots, \sigma_k\}$.
+Hence, $\|\W - \W_r\|_2 = \sigma_{r+1}$.
+
+\emph{Lower bound:} Let $\mathbf{B} \in \R^{m \times n}$ be an arbitrary matrix with $\rank(\mathbf{B}) \leq r$.
+By the rank-nullity theorem, the null space $\ker(\mathbf{B}) = \{\mathbf{x} \in \R^n : \mathbf{B}\mathbf{x} = \mathbf{0}\}$ has dimension:
+\begin{equation}
+  \dim(\ker(\mathbf{B})) = n - \rank(\mathbf{B}) \geq n - r.
+\end{equation}
+Now consider the subspace spanned by the first $r+1$ right singular vectors of $\W$:
+\begin{equation}
+  \mathcal{V}_{r+1} = \operatorname{span}\{\mathbf{v}_1, \mathbf{v}_2, \ldots, \mathbf{v}_{r+1}\} \subset \R^n.
+\end{equation}
+Clearly, $\dim(\mathcal{V}_{r+1}) = r+1$.
+By the dimension formula for subspace intersections:
+\begin{align}
+  \dim(\mathcal{V}_{r+1} \cap \ker(\mathbf{B}))
+  &= \dim(\mathcal{V}_{r+1}) + \dim(\ker(\mathbf{B})) - \dim(\mathcal{V}_{r+1} + \ker(\mathbf{B})) \nonumber\\
+  &\geq (r+1) + (n - r) - n = 1.
+\end{align}
+Therefore, there exists a non-zero unit vector $\mathbf{z} \in \mathcal{V}_{r+1} \cap \ker(\mathbf{B})$ with $\|\mathbf{z}\|_2 = 1$ and $\mathbf{B}\mathbf{z} = \mathbf{0}$.
+Because $\mathbf{z} \in \mathcal{V}_{r+1}$, we can write $\mathbf{z} = \sum_{i=1}^{r+1} \alpha_i \mathbf{v}_i$, where $\sum_{i=1}^{r+1} \alpha_i^2 = \|\mathbf{z}\|_2^2 = 1$.
+Evaluating the operator norm:
+\begin{align}
+  \|\W - \mathbf{B}\|_2^2
+  &\geq \|(\W - \mathbf{B})\mathbf{z}\|_2^2
+  = \|\W\mathbf{z} - \mathbf{0}\|_2^2
+  = \left\| \sum_{i=1}^{r+1} \alpha_i \sigma_i \mathbf{u}_i \right\|_2^2 \nonumber\\
+  &= \sum_{i=1}^{r+1} \alpha_i^2 \sigma_i^2
+  \geq \sigma_{r+1}^2 \sum_{i=1}^{r+1} \alpha_i^2 = \sigma_{r+1}^2.
+\end{align}
+Taking the square root gives $\|\W - \mathbf{B}\|_2 \geq \sigma_{r+1}$ for every rank-$r$ matrix $\mathbf{B}$.
+This proves \eqref{eq:ey_spectral}.
+
+\paragraph{Part 2: Frobenius Norm Optimality.}
+\emph{Achievability:} Using the unitary invariance of the Frobenius norm:
+\begin{equation}
+  \frob{\W - \W_r}^2 = \operatorname{Tr}\left((\W - \W_r)^\top (\W - \W_r)\right) = \sum_{i=r+1}^k \sigma_i^2.
+\end{equation}
+\emph{Lower bound:} Let $\sigma_i(\mathbf{A})$ denote the $i$-th singular value of matrix $\mathbf{A}$.
+By Mirsky's singular value inequality~\citep{mirsky1960symmetric}, for any two matrices $\W, \mathbf{B} \in \R^{m \times n}$:
+\begin{equation}
+  \frob{\W - \mathbf{B}}^2 \geq \sum_{i=1}^k \left(\sigma_i(\W) - \sigma_i(\mathbf{B})\right)^2.
+  \label{eq:mirsky}
+\end{equation}
+Since $\rank(\mathbf{B}) \leq r$, $\mathbf{B}$ has at most $r$ non-zero singular values, meaning $\sigma_i(\mathbf{B}) = 0$ for all $i \geq r+1$.
+Thus, the sum in \eqref{eq:mirsky} is lower bounded by:
+\begin{align}
+  \frob{\W - \mathbf{B}}^2
+  &\geq \sum_{i=1}^r (\sigma_i(\W) - \sigma_i(\mathbf{B}))^2 + \sum_{i=r+1}^k (\sigma_i(\W) - 0)^2 \nonumber\\
+  &\geq 0 + \sum_{i=r+1}^k \sigma_i(\W)^2 = \sum_{i=r+1}^k \sigma_i^2.
+\end{align}
+Equality holds if and only if $\sigma_i(\mathbf{B}) = \sigma_i(\W)$ for all $i \leq r$ with identical singular subspaces, which uniquely specifies $\mathbf{B} = \W_r$.
+This completes the proof. \qed
+\end{proof}
+
+\paragraph{Energy retention.}
+A natural metric for compression quality is the fraction of singular
+value energy retained:
+\begin{align}
+  \eta(r) = \frac{\sum_{i=1}^r \sigma_i^2}{\sum_{i=1}^k \sigma_i^2} \in [0,1].
+  \label{eq:energy}
+\end{align}
+High $\eta(r)$ implies small Frobenius approximation error
+$\frob{\W - \hat\W}^2 / \frob{\W}^2 = 1 - \eta(r)$.
+
+\paragraph{Implementation note.}
+Our implementation writes the reconstructed $\hat\W$ back to the layer's
+weight parameter, preserving the original architecture.
+This means the \emph{memory footprint is unchanged} relative to the baseline.
+Real memory reduction requires replacing a single Linear$(m, n)$ with two
+consecutive layers: Linear$(n, r) \to$ Linear$(r, m)$, which reduces
+parameter count from $mn$ to $r(m+n)$.
+We report the \emph{theoretical storage ratio} $r(m+n)/(mn)$ to make
+this distinction explicit.
+
+\subsection{Profiling Methodology}
+\label{sec:profiling}
+
+All experiments are profiled on the same hardware under identical conditions.
+We measure seven metrics:
+
+\begin{description}[leftmargin=1.5em,itemsep=2pt]
+  \item[\textbf{Accuracy / F1}] Top-1 test accuracy and macro-averaged F1
+    on the held-out test set (10{,}000 samples).
+  \item[\textbf{Latency}] Wall-clock inference time per single sample
+    (batch size 1), measured with \texttt{time.perf\_counter()} over
+    100 runs after 10 warmup runs. We report mean $\pm$ std and P95.
+  \item[\textbf{Peak RAM}] Measured via Python's \texttt{tracemalloc}.
+    Note: \texttt{tracemalloc} tracks Python-heap allocations and
+    underestimates actual memory for C-extension tensors.
+    We additionally report process RSS via \texttt{psutil} as a
+    complementary upper bound.
+  \item[\textbf{Theoretical FLOPs}] Multiply-accumulate operations (MACs)
+    counted via \texttt{thop}~\citep{thop2019}; FLOPs = 2 $\times$ MACs.
+  \item[\textbf{Model size}] Total bytes of parameter tensors
+    (dense storage), reported in MB.
+  \item[\textbf{Global sparsity}] Fraction of zero-valued weights across
+    all Linear and Conv2d layers.
+\end{description}
+
+\subsection{Reproducibility Protocol}
+\label{sec:reproducibility}
+
+All experiments are run under three independent random seeds
+($s \in \{42, 123, 7\}$).
+Before each experiment, all PRNG states are fixed:
+\texttt{random.seed(s)}, \texttt{numpy.random.seed(s)},
+\texttt{torch.manual\_seed(s)}, \texttt{cudnn.deterministic=True}.
+Results are reported as mean $\pm$ standard deviation across seeds.

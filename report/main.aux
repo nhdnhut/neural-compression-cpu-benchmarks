@@ -1,0 +1,180 @@
+\relax 
+\providecommand\hyper@newdestlabel[2]{}
+\providecommand\HyField@AuxAddToFields[1]{}
+\providecommand\HyField@AuxAddToCoFields[2]{}
+\citation{warden2019tinyml,cheng2017survey}
+\citation{lecun1990optimal,han2015learning}
+\citation{jacob2018quantization,hubara2017quantized}
+\citation{denton2014exploiting,li2018constrained}
+\citation{blalock2020state}
+\@writefile{toc}{\contentsline {section}{\numberline {1}Introduction}{1}{section.1}\protected@file@percent }
+\newlabel{sec:intro}{{1}{1}{Introduction}{section.1}{}}
+\@writefile{toc}{\contentsline {paragraph}{Motivation.}{1}{section*.2}\protected@file@percent }
+\citation{lecun1990optimal}
+\citation{han2015learning}
+\citation{han2015deep}
+\citation{gale2019state}
+\citation{li2016pruning,molchanov2017pruning}
+\citation{zhu2018prune}
+\citation{jacob2018quantization}
+\citation{hubara2017quantized}
+\citation{deng2020model}
+\citation{denton2014exploiting}
+\citation{li2018constrained}
+\citation{khodak2021initialization}
+\citation{blalock2020state}
+\citation{gale2019state}
+\@writefile{toc}{\contentsline {paragraph}{Research Questions.}{2}{section*.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Contributions.}{2}{section*.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {2}Background and Related Work}{2}{section.2}\protected@file@percent }
+\newlabel{sec:related}{{2}{2}{Background and Related Work}{section.2}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.1}Magnitude Pruning}{2}{subsection.2.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Structured vs.\ unstructured pruning.}{2}{section*.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.2}Post-Training Quantization}{2}{subsection.2.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.3}Low-Rank Factorization}{2}{subsection.2.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.4}Comparative Benchmarks}{2}{subsection.2.4}\protected@file@percent }
+\citation{xiao2017fashion}
+\@writefile{toc}{\contentsline {section}{\numberline {3}Methods}{3}{section.3}\protected@file@percent }
+\newlabel{sec:methods}{{3}{3}{Methods}{section.3}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.1}Model Architecture}{3}{subsection.3.1}\protected@file@percent }
+\newlabel{sec:model}{{3.1}{3}{Model Architecture}{subsection.3.1}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {1}{\ignorespaces SmallCNN layer specifications. $K$: kernel size, $P$: padding, $S$: stride. Parameter counts include biases.}}{3}{table.caption.6}\protected@file@percent }
+\providecommand*\caption@xref[2]{\@setref\relax\@undefined{#1}}
+\newlabel{tab:arch}{{1}{3}{SmallCNN layer specifications. $K$: kernel size, $P$: padding, $S$: stride. Parameter counts include biases}{table.caption.6}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.2}Compression Algorithms}{3}{subsection.3.2}\protected@file@percent }
+\newlabel{sec:algorithms}{{3.2}{3}{Compression Algorithms}{subsection.3.2}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {3.2.1}Magnitude-Based Global Unstructured Pruning}{3}{subsubsection.3.2.1}\protected@file@percent }
+\newlabel{sec:pruning}{{3.2.1}{3}{Magnitude-Based Global Unstructured Pruning}{subsubsection.3.2.1}{}}
+\@writefile{toc}{\contentsline {paragraph}{Algorithm.}{3}{section*.7}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Theoretical Analysis.}{3}{section*.8}\protected@file@percent }
+\newlabel{thm:sparsity}{{1}{3}{Sparsity Preservation Under Masked Gradient Optimization}{theorem.1}{}}
+\@writefile{loa}{\contentsline {algorithm}{\numberline {1}{\ignorespaces Global L1 Unstructured Pruning with Fine-Tuning}}{3}{algorithm.1}\protected@file@percent }
+\newlabel{alg:pruning}{{1}{3}{Global L1 Unstructured Pruning with Fine-Tuning}{algorithm.1}{}}
+\newlabel{eq:chain_rigorous}{{2}{3}{Theoretical Analysis}{equation.2}{}}
+\citation{jacob2018quantization}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {3.2.2}Post-Training Quantization}{4}{subsubsection.3.2.2}\protected@file@percent }
+\newlabel{sec:quantization}{{3.2.2}{4}{Post-Training Quantization}{subsubsection.3.2.2}{}}
+\@writefile{toc}{\contentsline {paragraph}{Quantization scheme.}{4}{section*.9}\protected@file@percent }
+\newlabel{eq:quant_scheme}{{5}{4}{Quantization scheme}{equation.5}{}}
+\newlabel{thm:quant_error}{{2}{4}{INT8 Quantization Error and Network Output Perturbation Bound}{theorem.2}{}}
+\newlabel{eq:elem_bound}{{6}{4}{INT8 Quantization Error and Network Output Perturbation Bound}{equation.6}{}}
+\newlabel{eq:frob_bound}{{7}{4}{INT8 Quantization Error and Network Output Perturbation Bound}{equation.7}{}}
+\newlabel{eq:net_bound}{{8}{4}{INT8 Quantization Error and Network Output Perturbation Bound}{equation.8}{}}
+\citation{mirsky1960symmetric}
+\newlabel{eq:rec_error}{{11}{5}{Quantization scheme}{equation.11}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {3.2.3}Low-Rank Matrix Factorization via Truncated SVD}{5}{subsubsection.3.2.3}\protected@file@percent }
+\newlabel{sec:lowrank}{{3.2.3}{5}{Low-Rank Matrix Factorization via Truncated SVD}{subsubsection.3.2.3}{}}
+\@writefile{toc}{\contentsline {paragraph}{Algorithm.}{5}{section*.10}\protected@file@percent }
+\newlabel{eq:svd_recon}{{13}{5}{Algorithm}{equation.13}{}}
+\newlabel{thm:eckart_young}{{3}{5}{Eckart-Young-Mirsky Optimal Low-Rank Approximation}{theorem.3}{}}
+\newlabel{eq:ey_spectral}{{15}{5}{Eckart-Young-Mirsky Optimal Low-Rank Approximation}{equation.15}{}}
+\newlabel{eq:ey_frobenius}{{16}{5}{Eckart-Young-Mirsky Optimal Low-Rank Approximation}{equation.16}{}}
+\@writefile{toc}{\contentsline {paragraph}{Part 1: Spectral Norm Optimality.}{5}{section*.11}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Part 2: Frobenius Norm Optimality.}{5}{section*.12}\protected@file@percent }
+\citation{thop2019}
+\citation{xiao2017fashion}
+\citation{kingma2014adam}
+\newlabel{eq:mirsky}{{23}{6}{Part 2: Frobenius Norm Optimality}{equation.23}{}}
+\@writefile{toc}{\contentsline {paragraph}{Energy retention.}{6}{section*.13}\protected@file@percent }
+\newlabel{eq:energy}{{25}{6}{Energy retention}{equation.25}{}}
+\@writefile{toc}{\contentsline {paragraph}{Implementation note.}{6}{section*.14}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.3}Profiling Methodology}{6}{subsection.3.3}\protected@file@percent }
+\newlabel{sec:profiling}{{3.3}{6}{Profiling Methodology}{subsection.3.3}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.4}Reproducibility Protocol}{6}{subsection.3.4}\protected@file@percent }
+\newlabel{sec:reproducibility}{{3.4}{6}{Reproducibility Protocol}{subsection.3.4}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {4}Experimental Setup}{6}{section.4}\protected@file@percent }
+\newlabel{sec:setup}{{4}{6}{Experimental Setup}{section.4}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.1}Hardware and Software}{6}{subsection.4.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.2}Dataset}{6}{subsection.4.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.3}Training Hyperparameters (Baseline)}{6}{subsection.4.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.4}Compression Hyperparameters}{6}{subsection.4.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Pruning.}{6}{section*.16}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {2}{\ignorespaces Baseline training hyperparameters.}}{7}{table.caption.15}\protected@file@percent }
+\newlabel{tab:hyperparams}{{2}{7}{Baseline training hyperparameters}{table.caption.15}{}}
+\@writefile{toc}{\contentsline {paragraph}{Quantization.}{7}{section*.17}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Low-rank.}{7}{section*.18}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.5}Evaluation Protocol}{7}{subsection.4.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {5}Results}{7}{section.5}\protected@file@percent }
+\newlabel{sec:results}{{5}{7}{Results}{section.5}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.1}Baseline Performance}{7}{subsection.5.1}\protected@file@percent }
+\newlabel{sec:baseline_results}{{5.1}{7}{Baseline Performance}{subsection.5.1}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {3}{\ignorespaces Baseline SmallCNN results (mean $\pm $ std, $n=3$ seeds). MACs reported as multiply-accumulate operations per inference.}}{7}{table.caption.19}\protected@file@percent }
+\newlabel{tab:baseline}{{3}{7}{Baseline SmallCNN results (mean $\pm $ std, $n=3$ seeds). MACs reported as multiply-accumulate operations per inference}{table.caption.19}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.2}Pruning: Accuracy vs.\ Sparsity}{7}{subsection.5.2}\protected@file@percent }
+\newlabel{sec:pruning_results}{{5.2}{7}{Pruning: Accuracy vs.\ Sparsity}{subsection.5.2}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {4}{\ignorespaces Pruning sweep results. $\Delta $Acc: accuracy change relative to FP32 baseline. FLOPs reduction: theoretical, proportional to sparsity. Lat.\ change: measured latency relative to baseline.}}{7}{table.caption.20}\protected@file@percent }
+\newlabel{tab:pruning}{{4}{7}{Pruning sweep results. $\Delta $Acc: accuracy change relative to FP32 baseline. FLOPs reduction: theoretical, proportional to sparsity. Lat.\ change: measured latency relative to baseline}{table.caption.20}{}}
+\@writefile{toc}{\contentsline {paragraph}{Key observation (RQ1).}{7}{section*.21}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Key observation (RQ2) — non-monotonic latency.}{7}{section*.22}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.3}Quantization: Accuracy, Size, and Latency}{7}{subsection.5.3}\protected@file@percent }
+\newlabel{sec:quant_results}{{5.3}{7}{Quantization: Accuracy, Size, and Latency}{subsection.5.3}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {5}{\ignorespaces Quantization results. Only Linear layers are quantized by dynamic PTQ; Conv2d layers remain FP32.}}{7}{table.caption.23}\protected@file@percent }
+\newlabel{tab:quant}{{5}{7}{Quantization results. Only Linear layers are quantized by dynamic PTQ; Conv2d layers remain FP32}{table.caption.23}{}}
+\@writefile{toc}{\contentsline {paragraph}{Key observation.}{7}{section*.24}\protected@file@percent }
+\citation{li2018constrained}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.4}Low-Rank SVD: Approximation Error vs.\ Accuracy}{8}{subsection.5.4}\protected@file@percent }
+\newlabel{sec:lowrank_results}{{5.4}{8}{Low-Rank SVD: Approximation Error vs.\ Accuracy}{subsection.5.4}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {6}{\ignorespaces Low-rank SVD results. $\eta $: mean energy retained (Eq.~\ref {eq:energy}). Frob.\ err: relative Frobenius approximation error. Note: model size is unchanged (reconstruction, not factorization).}}{8}{table.caption.25}\protected@file@percent }
+\newlabel{tab:lowrank}{{6}{8}{Low-rank SVD results. $\eta $: mean energy retained (Eq.~\ref {eq:energy}). Frob.\ err: relative Frobenius approximation error. Note: model size is unchanged (reconstruction, not factorization)}{table.caption.25}{}}
+\@writefile{toc}{\contentsline {paragraph}{Key observation.}{8}{section*.26}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Limitation.}{8}{section*.27}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.5}Pareto Frontier Analysis}{8}{subsection.5.5}\protected@file@percent }
+\newlabel{sec:pareto}{{5.5}{8}{Pareto Frontier Analysis}{subsection.5.5}{}}
+\@writefile{toc}{\contentsline {paragraph}{RQ3 answer.}{8}{section*.31}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces 6-panel performance dashboard. Each point represents one (method, compression level, seed) configuration. Stars indicate Pareto-optimal points. Baseline (FP32, uncompressed) shown as dashed reference.}}{8}{figure.caption.28}\protected@file@percent }
+\newlabel{fig:pareto_dashboard}{{1}{8}{6-panel performance dashboard. Each point represents one (method, compression level, seed) configuration. Stars indicate Pareto-optimal points. Baseline (FP32, uncompressed) shown as dashed reference}{figure.caption.28}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces Pareto frontier: test accuracy vs.\ model size. Dynamic INT8 quantization dominates: it achieves the best accuracy--size trade-off by 4$\times $ model size reduction.}}{8}{figure.caption.29}\protected@file@percent }
+\newlabel{fig:pareto_size}{{2}{8}{Pareto frontier: test accuracy vs.\ model size. Dynamic INT8 quantization dominates: it achieves the best accuracy--size trade-off by 4$\times $ model size reduction}{figure.caption.29}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {6}Discussion}{8}{section.6}\protected@file@percent }
+\newlabel{sec:discussion}{{6}{8}{Discussion}{section.6}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.1}The FLOPs--Latency Gap for Unstructured Pruning}{8}{subsection.6.1}\protected@file@percent }
+\citation{li2018constrained,hu2021lora}
+\citation{frankle2019lottery}
+\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces Pareto frontier: test accuracy vs.\ inference latency. Unstructured pruning does \emph  {not} improve latency despite reducing theoretical FLOPs. Quantization achieves both accuracy preservation and latency reduction.}}{9}{figure.caption.30}\protected@file@percent }
+\newlabel{fig:pareto_lat}{{3}{9}{Pareto frontier: test accuracy vs.\ inference latency. Unstructured pruning does \emph {not} improve latency despite reducing theoretical FLOPs. Quantization achieves both accuracy preservation and latency reduction}{figure.caption.30}{}}
+\@writefile{toc}{\contentsline {paragraph}{Why 25--75\% sparsity \emph  {increases} latency.}{9}{section*.32}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Why 90\% sparsity \emph  {reduces} latency.}{9}{section*.33}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Implication for practitioners.}{9}{section*.34}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.2}Quantization as the Practical Default}{9}{subsection.6.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.3}Low-Rank Factorization: When Does it Help?}{9}{subsection.6.3}\protected@file@percent }
+\bibstyle{abbrvnat}
+\bibdata{refs}
+\bibcite{blalock2020state}{{1}{2020}{{Blalock et~al.}}{{Blalock, Gonzalez~Ortiz, Frankle, and Guttag}}}
+\bibcite{cheng2017survey}{{2}{2017}{{Cheng et~al.}}{{Cheng, Wang, Zhou, and Zhang}}}
+\bibcite{deng2020model}{{3}{2020}{{Deng et~al.}}{{Deng, Li, Han, Shi, and Xie}}}
+\bibcite{denton2014exploiting}{{4}{2014}{{Denton et~al.}}{{Denton, Zaremba, Bruna, LeCun, and Fergus}}}
+\bibcite{frankle2019lottery}{{5}{2018}{{Frankle and Carlin}}{{}}}
+\bibcite{gale2019state}{{6}{2019}{{Gale et~al.}}{{Gale, Elsen, and Hooker}}}
+\bibcite{han2015deep}{{7}{2015{a}}{{Han et~al.}}{{Han, Mao, and Dally}}}
+\bibcite{han2015learning}{{8}{2015{b}}{{Han et~al.}}{{Han, Pool, Tran, and Dally}}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.4}Accuracy Robustness at Extreme Sparsity}{10}{subsection.6.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.5}Limitations}{10}{subsection.6.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {7}Conclusion}{10}{section.7}\protected@file@percent }
+\newlabel{sec:conclusion}{{7}{10}{Conclusion}{section.7}{}}
+\@writefile{toc}{\contentsline {paragraph}{Future Work.}{10}{section*.35}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Code Availability.}{10}{section*.36}\protected@file@percent }
+\bibcite{hu2021lora}{{9}{2021}{{Hu et~al.}}{{Hu, Shen, Wallis, Allen-Zhu, Li, Wang, Wang, and Chen}}}
+\bibcite{hubara2017quantized}{{10}{2017}{{Hubara et~al.}}{{Hubara, Courbariaux, Soudry, El-Yaniv, and Bengio}}}
+\bibcite{jacob2018quantization}{{11}{2018}{{Jacob et~al.}}{{Jacob, Kligys, Chen, Zhu, Tang, Howard, Adam, and Kalenichenko}}}
+\bibcite{khodak2021initialization}{{12}{2021}{{Khodak et~al.}}{{Khodak, Tian, Lerer, and Mackey}}}
+\bibcite{kingma2014adam}{{13}{2014}{{Kingma and Ba}}{{}}}
+\bibcite{lecun1990optimal}{{14}{1990}{{LeCun et~al.}}{{LeCun, Denker, and Solla}}}
+\bibcite{li2016pruning}{{15}{2017}{{Li et~al.}}{{Li, Kadav, Durdanovic, Samet, and Graf}}}
+\bibcite{li2018constrained}{{16}{2018}{{Li et~al.}}{{Li, Zhang, Liu, Shu, and Luo}}}
+\bibcite{mirsky1960symmetric}{{17}{1960}{{Mirsky}}{{}}}
+\bibcite{molchanov2017pruning}{{18}{2017}{{Molchanov et~al.}}{{Molchanov, Tyree, Karras, Aila, and Kautz}}}
+\bibcite{warden2019tinyml}{{19}{2019}{{Warden and Situnayake}}{{}}}
+\bibcite{xiao2017fashion}{{20}{2017}{{Xiao et~al.}}{{Xiao, Rasul, and Vollgraf}}}
+\bibcite{thop2019}{{21}{2019}{{Zhu}}{{}}}
+\bibcite{zhu2018prune}{{22}{2017}{{Zhu and Gupta}}{{}}}
+\@writefile{toc}{\contentsline {section}{\numberline {A}Full Results Table}{11}{appendix.A}\protected@file@percent }
+\newlabel{app:full_results}{{A}{11}{Full Results Table}{appendix.A}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {B}Algorithm Implementation Details}{11}{appendix.B}\protected@file@percent }
+\newlabel{app:impl}{{B}{11}{Algorithm Implementation Details}{appendix.B}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {B.1}Pruning: Mask-Retention Implementation}{11}{subsection.B.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {B.2}Quantization: Deprecation Note}{11}{subsection.B.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {C}Statistical Testing}{11}{appendix.C}\protected@file@percent }
+\newlabel{app:stats}{{C}{11}{Statistical Testing}{appendix.C}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {7}{\ignorespaces Complete benchmark results across all methods and seeds.}}{12}{table.caption.38}\protected@file@percent }
+\newlabel{tab:full_results}{{7}{12}{Complete benchmark results across all methods and seeds}{table.caption.38}{}}
+\gdef \@abspage@last{12}

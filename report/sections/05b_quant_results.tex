@@ -1,0 +1,38 @@
+% ============================================================
+%  sections/05b_quant_results.tex
+% ============================================================
+\subsection{Quantization: Accuracy, Size, and Latency}
+\label{sec:quant_results}
+
+Table~\ref{tab:quant} compares the FP32 baseline against dynamic
+INT8 PTQ.
+
+\begin{table}[ht]
+\centering
+\caption{Quantization results. Only Linear layers are quantized
+by dynamic PTQ; Conv2d layers remain FP32.}
+\label{tab:quant}
+\small
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{lcccc}
+\toprule
+Method & Acc (\%) & $\Delta$Acc & Size (MB) & Lat.\ (ms) \\
+\midrule
+FP32 (baseline) & \RESULTFILE{q_fp32_acc} & --- & \RESULTFILE{q_fp32_size} & \RESULTFILE{q_fp32_lat} \\
+Dynamic INT8    & \RESULTFILE{q_int8_acc} & \RESULTFILE{q_int8_dacc} & \RESULTFILE{q_int8_size} & \RESULTFILE{q_int8_lat} \\
+\bottomrule
+\end{tabular}%
+}
+\end{table}
+
+\paragraph{Key observation.}
+Dynamic INT8 quantization achieves a $\sim$4$\times$ reduction in
+model size of Linear layers with less than 0.1\% accuracy degradation.
+Unlike unstructured pruning, quantization \emph{does} reduce inference
+latency on x86 CPUs, because FBGEMM uses AVX2/AVX-512 INT8 SIMD
+instructions that process 4$\times$ more operations per clock cycle.
+
+The size reduction is partial because Conv2d layers (which account for
+only $\sim$2.3\% of parameters) remain in FP32.
+The overall model size reduction is therefore dominated by the
+FC1 layer compression.

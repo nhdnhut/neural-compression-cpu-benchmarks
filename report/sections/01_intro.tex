@@ -1,0 +1,58 @@
+% ============================================================
+%  sections/01_intro.tex
+% ============================================================
+\section{Introduction}
+\label{sec:intro}
+
+The deployment of neural networks on resource-constrained hardware—embedded
+microcontrollers, mobile SoCs, IoT sensors—is among the most practically
+important challenges in modern machine learning
+\citep{warden2019tinyml,cheng2017survey}.
+These environments impose hard budgets on memory (often $<$1~MB SRAM),
+compute (often $<$10~MFLOP/inference), and energy (often $<$1~mJ/inference).
+Simultaneously, the delivered model must remain accurate enough to be useful.
+
+Three families of techniques have emerged to navigate this
+accuracy-efficiency trade-off:
+\textbf{pruning}~\citep{lecun1990optimal,han2015learning},
+which zeros a fraction of weight parameters;
+\textbf{quantization}~\citep{jacob2018quantization,hubara2017quantized},
+which reduces the numerical precision of weights and activations; and
+\textbf{low-rank factorization}~\citep{denton2014exploiting,li2018constrained},
+which replaces weight matrices with low-dimensional approximations.
+
+\paragraph{Motivation.}
+Despite extensive literature on each technique in isolation, controlled
+\emph{comparative} benchmarks under identical hardware and training conditions
+are rare~\citep{blalock2020state}.
+A practitioner choosing a compression strategy must often answer:
+\emph{Does 50\% pruning actually speed up inference?
+Does quantization hurt accuracy on small models?
+When does low-rank approximation break down?}
+These questions motivate our study.
+
+\paragraph{Research Questions.}
+We investigate three concrete research questions:
+\begin{description}[leftmargin=1.5em]
+  \item[\textbf{RQ1}] How does each compression method affect model quality
+    (accuracy, F1) as a function of compression intensity?
+  \item[\textbf{RQ2}] Does theoretical FLOPs reduction translate to
+    measured wall-clock latency reduction for unstructured pruning?
+  \item[\textbf{RQ3}] What is the Pareto frontier of the
+    accuracy--latency, accuracy--size, and accuracy--RAM trade-offs
+    across methods?
+\end{description}
+
+\paragraph{Contributions.}
+\begin{enumerate}[leftmargin=1.5em,topsep=2pt,itemsep=1pt]
+  \item We provide \textbf{formal proofs} of three key theoretical results:
+    sparsity preservation under masked gradient descent (Theorem~\ref{thm:sparsity}),
+    SVD optimality in the Frobenius norm sense (Theorem~\ref{thm:eckart_young}),
+    and INT8 quantization error and Lipschitz output perturbation bounds (Theorem~\ref{thm:quant_error}).
+  \item We conduct a \textbf{controlled multi-seed benchmark} measuring
+    seven metrics across 13 experimental configurations.
+  \item We empirically demonstrate and explain the \textbf{FLOPs--latency gap}
+    for unstructured pruning on commodity CPUs.
+  \item We release all code, configurations, and data as an open-source
+    reproducible benchmark suite.
+\end{enumerate}

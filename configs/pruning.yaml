@@ -1,0 +1,24 @@
+
+# configs/pruning.yaml
+# ====================
+# Pruning sweep: E01–E04
+# Varies pruning_ratio from 0% to 90%
+
+experiment:
+  id_prefix: "E01-E04"
+  name: "pruning_sweep_fashionmnist"
+  description: "Magnitude pruning sweep on baseline SmallCNN"
+
+base_experiment: baseline  # inherits dataset/model/training from baseline.yaml
+
+pruning:
+  ratios: [0.0, 0.25, 0.50, 0.75, 0.90]
+  make_permanent: true
+  finetune_epochs: 5
+  finetune_lr_factor: 0.1    # finetune_lr = original_lr * factor
+
+seeds: [42, 123, 7]
+
+output:
+  results_dir: ./benchmarks/results
+  models_dir: ./benchmarks/models

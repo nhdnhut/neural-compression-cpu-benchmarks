@@ -1,0 +1,148 @@
+\begin{thebibliography}{22}
+\providecommand{\natexlab}[1]{#1}
+\providecommand{\url}[1]{\texttt{#1}}
+\expandafter\ifx\csname urlstyle\endcsname\relax
+  \providecommand{\doi}[1]{doi: #1}\else
+  \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
+
+\bibitem[Blalock et~al.(2020)Blalock, Gonzalez~Ortiz, Frankle, and
+  Guttag]{blalock2020state}
+D.~Blalock, J.~J. Gonzalez~Ortiz, J.~Frankle, and J.~Guttag.
+\newblock What is the state of neural network pruning?
+\newblock \emph{Proceedings of machine learning and systems}, 2:\penalty0
+  129--146, 2020.
+
+\bibitem[Cheng et~al.(2017)Cheng, Wang, Zhou, and Zhang]{cheng2017survey}
+Y.~Cheng, D.~Wang, P.~Zhou, and T.~Zhang.
+\newblock A survey of model compression and acceleration for deep neural
+  networks.
+\newblock \emph{arXiv preprint arXiv:1710.09282}, 2017.
+
+\bibitem[Deng et~al.(2020)Deng, Li, Han, Shi, and Xie]{deng2020model}
+L.~Deng, G.~Li, S.~Han, L.~Shi, and Y.~Xie.
+\newblock Model compression and hardware acceleration for neural networks: A
+  comprehensive survey.
+\newblock \emph{Proceedings of the IEEE}, 108\penalty0 (4):\penalty0 485--532,
+  2020.
+
+\bibitem[Denton et~al.(2014)Denton, Zaremba, Bruna, LeCun, and
+  Fergus]{denton2014exploiting}
+E.~Denton, W.~Zaremba, J.~Bruna, Y.~LeCun, and R.~Fergus.
+\newblock Exploiting linear structure within convolutional networks for
+  efficient evaluation.
+\newblock In \emph{Advances in neural information processing systems},
+  volume~27, 2014.
+
+\bibitem[Frankle and Carlin(2018)]{frankle2019lottery}
+J.~Frankle and M.~Carlin.
+\newblock The lottery ticket hypothesis: Finding sparse, trainable neural
+  networks.
+\newblock \emph{arXiv preprint arXiv:1803.03635}, 2018.
+
+\bibitem[Gale et~al.(2019)Gale, Elsen, and Hooker]{gale2019state}
+T.~Gale, E.~Elsen, and S.~Hooker.
+\newblock The state of sparsity in deep neural networks.
+\newblock \emph{arXiv preprint arXiv:1902.09574}, 2019.
+
+\bibitem[Han et~al.(2015{\natexlab{a}})Han, Mao, and Dally]{han2015deep}
+S.~Han, H.~Mao, and W.~J. Dally.
+\newblock Deep compression: Compressing deep neural networks with pruning,
+  trained quantization and huffman coding.
+\newblock \emph{arXiv preprint arXiv:1510.00149}, 2015{\natexlab{a}}.
+
+\bibitem[Han et~al.(2015{\natexlab{b}})Han, Pool, Tran, and
+  Dally]{han2015learning}
+S.~Han, J.~Pool, J.~Tran, and W.~Dally.
+\newblock Learning both weights and connections for efficient neural networks.
+\newblock In \emph{Advances in neural information processing systems},
+  volume~28, 2015{\natexlab{b}}.
+
+\bibitem[Hu et~al.(2021)Hu, Shen, Wallis, Allen-Zhu, Li, Wang, Wang, and
+  Chen]{hu2021lora}
+E.~J. Hu, Y.~Shen, P.~Wallis, Z.~Allen-Zhu, Y.~Li, S.~Wang, L.~Wang, and
+  W.~Chen.
+\newblock Lora: Low-rank adaptation of large language models.
+\newblock \emph{arXiv preprint arXiv:2106.09685}, 2021.
+
+\bibitem[Hubara et~al.(2017)Hubara, Courbariaux, Soudry, El-Yaniv, and
+  Bengio]{hubara2017quantized}
+I.~Hubara, M.~Courbariaux, D.~Soudry, R.~El-Yaniv, and Y.~Bengio.
+\newblock Quantized neural networks: Training neural networks with low
+  precision weights and activations.
+\newblock \emph{Journal of Machine Learning Research}, 18\penalty0
+  (187):\penalty0 1--30, 2017.
+
+\bibitem[Jacob et~al.(2018)Jacob, Kligys, Chen, Zhu, Tang, Howard, Adam, and
+  Kalenichenko]{jacob2018quantization}
+B.~Jacob, S.~Kligys, B.~Chen, M.~Zhu, M.~Tang, A.~Howard, H.~Adam, and
+  D.~Kalenichenko.
+\newblock Quantization and training of neural networks for efficient
+  integer-arithmetic-only inference.
+\newblock In \emph{Proceedings of the IEEE conference on computer vision and
+  pattern recognition}, pages 2704--2713, 2018.
+
+\bibitem[Khodak et~al.(2021)Khodak, Tian, Lerer, and
+  Mackey]{khodak2021initialization}
+M.~Khodak, N.~Tian, A.~Lerer, and L.~Mackey.
+\newblock Initialization and regularization of factorized neural layers.
+\newblock \emph{arXiv preprint arXiv:2105.01029}, 2021.
+
+\bibitem[Kingma and Ba(2014)]{kingma2014adam}
+D.~P. Kingma and J.~Ba.
+\newblock Adam: A method for stochastic optimization.
+\newblock \emph{arXiv preprint arXiv:1412.6980}, 2014.
+
+\bibitem[LeCun et~al.(1990)LeCun, Denker, and Solla]{lecun1990optimal}
+Y.~LeCun, J.~Denker, and S.~Solla.
+\newblock Optimal brain damage.
+\newblock \emph{Advances in neural information processing systems}, 2, 1990.
+
+\bibitem[Li et~al.(2017)Li, Kadav, Durdanovic, Samet, and Graf]{li2016pruning}
+H.~Li, A.~Kadav, I.~Durdanovic, H.~Samet, and H.~P. Graf.
+\newblock Pruning filters for efficient convnets.
+\newblock In \emph{International Conference on Learning Representations}, 2017.
+
+\bibitem[Li et~al.(2018)Li, Zhang, Liu, Shu, and Luo]{li2018constrained}
+W.~Li, T.~Zhang, Y.~Liu, Z.~Shu, and Z.~Luo.
+\newblock Constrained low-rank learning using least squares based
+  regularization.
+\newblock \emph{IEEE Transactions on Cybernetics}, 49\penalty0 (12):\penalty0
+  4201--4210, 2018.
+
+\bibitem[Mirsky(1960)]{mirsky1960symmetric}
+L.~Mirsky.
+\newblock Symmetric gauge functions and unitarily invariant norms.
+\newblock \emph{The Quarterly Journal of Mathematics}, 11\penalty0
+  (1):\penalty0 50--59, 1960.
+
+\bibitem[Molchanov et~al.(2017)Molchanov, Tyree, Karras, Aila, and
+  Kautz]{molchanov2017pruning}
+P.~Molchanov, S.~Tyree, T.~Karras, T.~Aila, and J.~Kautz.
+\newblock Pruning convolutional neural networks for resource efficient
+  inference.
+\newblock \emph{arXiv preprint arXiv:1611.06440}, 2017.
+
+\bibitem[Warden and Situnayake(2019)]{warden2019tinyml}
+P.~Warden and D.~Situnayake.
+\newblock \emph{TinyML: Machine Learning with TensorFlow Lite on Arduino and
+  Ultra-Low-Power Microcontrollers}.
+\newblock O'Reilly Media, 2019.
+
+\bibitem[Xiao et~al.(2017)Xiao, Rasul, and Vollgraf]{xiao2017fashion}
+H.~Xiao, K.~Rasul, and R.~Vollgraf.
+\newblock Fashion-{MNIST}: a novel image dataset for benchmarking machine
+  learning algorithms.
+\newblock \emph{arXiv preprint arXiv:1708.07747}, 2017.
+
+\bibitem[Zhu(2019)]{thop2019}
+L.~Zhu.
+\newblock Thop: {PyTorch}-{FLOP}s counter.
+\newblock \url{https://github.com/Lyken17/pytorch-OpCounter}, 2019.
+
+\bibitem[Zhu and Gupta(2017)]{zhu2018prune}
+M.~Zhu and S.~Gupta.
+\newblock To prune, or not to prune: Exploring the efficacy of pruning for
+  model compression.
+\newblock \emph{arXiv preprint arXiv:1710.01878}, 2017.
+
+\end{thebibliography}

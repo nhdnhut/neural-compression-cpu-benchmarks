@@ -1,0 +1,40 @@
+
+# configs/baseline.yaml
+# =====================
+# Baseline experiment configuration: E00
+# SmallCNN on Fashion-MNIST, FP32, no compression, 3 seeds
+
+experiment:
+  id: E00
+  name: "baseline_smallcnn_fashionmnist"
+  description: "Baseline SmallCNN on Fashion-MNIST, FP32, no compression"
+
+dataset:
+  name: FashionMNIST
+  data_dir: ./data/raw
+  val_fraction: 0.1
+  batch_size: 64
+
+model:
+  name: SmallCNN
+  num_classes: 10
+  dropout_p: 0.25
+
+training:
+  optimizer: adam
+  lr: 0.001
+  weight_decay: 0.0001
+  epochs: 20
+  scheduler: cosine
+
+seeds: [42, 123, 7]
+
+profiling:
+  latency_warmup: 10
+  latency_runs: 100
+  batch_size_throughput: 32
+  input_shape: [1, 1, 28, 28]
+
+output:
+  results_dir: ./benchmarks/results
+  models_dir: ./benchmarks/models

@@ -1,0 +1,21 @@
+
+# configs/quantization.yaml
+# =========================
+# Quantization sweep: E05–E06
+
+experiment:
+  id_prefix: "E05-E06"
+  name: "quantization_sweep_fashionmnist"
+  description: "Post-training dynamic INT8 quantization of baseline SmallCNN"
+
+base_experiment: baseline
+
+quantization:
+  methods: [fp32, dynamic_int8]
+  backend: fbgemm       # x86 CPU; use 'qnnpack' for ARM
+
+seeds: [42, 123, 7]
+
+output:
+  results_dir: ./benchmarks/results
+  models_dir: ./benchmarks/models
