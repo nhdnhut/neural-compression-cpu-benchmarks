@@ -1,4 +1,4 @@
-﻿# An Empirical Study of Accuracyâ€“Resource Trade-offs in Neural Network Compression under CPU-Only Constraints
+# An Empirical Study of Accuracy–Resource Trade-offs in Neural Network Compression under CPU-Only Constraints
 
 > A rigorous empirical benchmark of compression methods on small neural networks, measured on CPU-only hardware.
 > PyTorch | Pruning | INT8 Dynamic Quantization | SVD Decomposition | CPU Benchmark Harness
@@ -16,7 +16,7 @@
 |---|---|
 | **RQ1** | How does model quality relate to parameter count? |
 | **RQ2** | Does FLOPs predict actual CPU inference latency? |
-| **RQ3** | What is the accuracyâ€“resource Pareto trade-off across compression strategies? |
+| **RQ3** | What is the accuracy–resource Pareto trade-off across compression strategies? |
 | **RQ4** | At what pruning ratio does accuracy degradation become non-linear? |
 
 ---
@@ -45,58 +45,58 @@ python experiments/quantization_sweep.py
 
 ```
 efficient-nn-benchmark/
-â”‚
-â”œâ”€â”€ core/               NumPy mini-framework (educational)
-â”‚   â”œâ”€â”€ layers.py       Linear, ReLU, Sigmoid, Tanh, Dropout, Flatten
-â”‚   â”œâ”€â”€ losses.py       CrossEntropyLoss, MSELoss (numerically stable)
-â”‚   â”œâ”€â”€ optimizers.py   SGD (with momentum), Adam (bias-corrected)
-â”‚   â”œâ”€â”€ mlp.py          Sequential MLP container
-â”‚   â””â”€â”€ trainer.py      Mini-batch training loop
-â”‚
-â”œâ”€â”€ nn/                 PyTorch models
-â”‚   â””â”€â”€ architectures.py  SmallCNN (~207K params), SmallMLP (tabular)
-â”‚
-â”œâ”€â”€ optim/
-â”‚   â””â”€â”€ trainer.py      PyTorch training engine with F1 evaluation
-â”‚
-â”œâ”€â”€ data/
-â”‚   â””â”€â”€ loaders.py      Fashion-MNIST + UCI Dry Bean loaders
-â”‚
-â”œâ”€â”€ compression/
-â”‚   â”œâ”€â”€ pruning.py      Magnitude unstructured pruning (Han et al. 2015)
-â”‚   â”œâ”€â”€ quantization.py Dynamic PTQ INT8 (torch.quantization)
-â”‚   â””â”€â”€ low_rank.py     SVD low-rank approximation (Denton et al. 2014)
-â”‚
-â”œâ”€â”€ profiling/
-â”‚   â”œâ”€â”€ timer.py        Wall-clock latency (warmup + percentiles)
-â”‚   â”œâ”€â”€ memory.py       Peak RAM (tracemalloc + psutil)
-â”‚   â”œâ”€â”€ flops.py        FLOPs/MACs (thop) + sparsity analysis
-â”‚   â””â”€â”€ reporter.py     Aggregate all metrics â†’ flat CSV row
-â”‚
-â”œâ”€â”€ experiments/
-â”‚   â”œâ”€â”€ baseline.py        E00: SmallCNN baseline Ã— 3 seeds
-â”‚   â”œâ”€â”€ pruning_sweep.py   E01â€“E04: pruning at 25/50/75/90%
-â”‚   â””â”€â”€ quantization_sweep.py  E05: FP32 vs Dynamic INT8
-â”‚
-â”œâ”€â”€ benchmarks/
-â”‚   â”œâ”€â”€ run_all.py         Master script: runs all experiments
-â”‚   â””â”€â”€ results/           Raw CSV outputs (committed)
-â”‚
-â”œâ”€â”€ visualization/
-â”‚   â””â”€â”€ pareto.py          Pareto frontier + dashboard plots
-â”‚
-â”œâ”€â”€ configs/
-â”‚   â”œâ”€â”€ baseline.yaml
-â”‚   â”œâ”€â”€ pruning.yaml
-â”‚   â””â”€â”€ quantization.yaml
-â”‚
-â”œâ”€â”€ tests/
-â”‚   â”œâ”€â”€ test_layers.py     Numerical gradient checks (must pass!)
-â”‚   â”œâ”€â”€ test_losses.py     Loss function correctness
-â”‚   â””â”€â”€ test_optimizers.py Optimizer convergence tests
-â”‚
-â”œâ”€â”€ notebooks/             Analysis notebooks (Jupyter)
-â””â”€â”€ report/                Written report + figures
+│
+├── core/               NumPy mini-framework (educational)
+│   ├── layers.py       Linear, ReLU, Sigmoid, Tanh, Dropout, Flatten
+│   ├── losses.py       CrossEntropyLoss, MSELoss (numerically stable)
+│   ├── optimizers.py   SGD (with momentum), Adam (bias-corrected)
+│   ├── mlp.py          Sequential MLP container
+│   └── trainer.py      Mini-batch training loop
+│
+├── nn/                 PyTorch models
+│   └── architectures.py  SmallCNN (~207K params), SmallMLP (tabular)
+│
+├── optim/
+│   └── trainer.py      PyTorch training engine with F1 evaluation
+│
+├── data/
+│   └── loaders.py      Fashion-MNIST + UCI Dry Bean loaders
+│
+├── compression/
+│   ├── pruning.py      Magnitude unstructured pruning (Han et al. 2015)
+│   ├── quantization.py Dynamic PTQ INT8 (torch.quantization)
+│   └── low_rank.py     SVD low-rank approximation (Denton et al. 2014)
+│
+├── profiling/
+│   ├── timer.py        Wall-clock latency (warmup + percentiles)
+│   ├── memory.py       Peak RAM (tracemalloc + psutil)
+│   ├── flops.py        FLOPs/MACs (thop) + sparsity analysis
+│   └── reporter.py     Aggregate all metrics â†’ flat CSV row
+│
+├── experiments/
+│   ├── baseline.py        E00: SmallCNN baseline Ã— 3 seeds
+│   ├── pruning_sweep.py   E01–E04: pruning at 25/50/75/90%
+│   └── quantization_sweep.py  E05: FP32 vs Dynamic INT8
+│
+├── benchmarks/
+│   ├── run_all.py         Master script: runs all experiments
+│   └── results/           Raw CSV outputs (committed)
+│
+├── visualization/
+│   └── pareto.py          Pareto frontier + dashboard plots
+│
+├── configs/
+│   ├── baseline.yaml
+│   ├── pruning.yaml
+│   └── quantization.yaml
+│
+├── tests/
+│   ├── test_layers.py     Numerical gradient checks (must pass!)
+│   ├── test_losses.py     Loss function correctness
+│   └── test_optimizers.py Optimizer convergence tests
+│
+├── notebooks/             Analysis notebooks (Jupyter)
+└── report/                Written report + figures
 ```
 
 ---
@@ -134,7 +134,7 @@ Total: **18 runs** for MVRP. Results reported as **mean Â± std**.
 2. **Test set held out**: hyperparameters tuned on val set, test set evaluated once at the end.
 3. **3 seeds minimum**: all results reported as mean Â± std.
 4. **Reproducible configs**: all hyperparameters in YAML files, committed to repo.
-5. **Theoretical vs actual**: FLOPs and latency reported separately â€” both matter.
+5. **Theoretical vs actual**: FLOPs and latency reported separately — both matter.
 
 ---
 
